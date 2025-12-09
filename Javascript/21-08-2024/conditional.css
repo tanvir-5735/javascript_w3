@@ -1,0 +1,10 @@
+.navbar-brand img{
+  height: 80px;
+  width: 80px;
+}
+#time{
+  padding:auto ;
+  position: relative;
+  left:400px;
+  font-size: 70px;
+}

@@ -1,0 +1,45 @@
+ <!DOCTYPE html>
+ <html>
+  <head>
+
+  </head>
+
+  <body>
+    <p id="time"></p>
+    <script> 
+      const week=["sun","mon","tue","wed","thus","fri","sat"];
+      const month_name=["jan","feb","march","april","may","june","july","august","sep","oct","nov","dec" ];
+
+      let date=new Date();
+
+      var day=date.getDay();
+      document.write(week[day]);
+      document.write("<br>");
+
+      var month=date.getMonth();
+      //  var month=month_name[date.getMonth()];
+      document.write(month_name[month]);
+      document.write("<br>");
+
+      var year=date.getFullYear();
+      document.write(year);
+      document.write("<br>");
+
+      var hour=date.getHours();
+      document.write(hour);
+
+      // document.getElementById("time").
+    //  innerHTML=hour+":"+week[day]+":"+month_name[month]+":"+year ;
+
+      document.getElementById("time").
+      innerHTML=hour+":"+day+":"+month+":"+year;
+
+
+      document.getElementById("time").
+      innerHTML=date;
+      
+    </script>
+
+  </body>
+
+ </html>

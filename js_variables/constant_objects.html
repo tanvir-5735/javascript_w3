@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>JavaScript constant</h2>
+    <p>Declaring a constant object does NOT make the objects properties unchangeable:</p>
+    <p id="demo"></p>
+
+    <script>
+        const car={ type:"normal" , model:"5050", color:"white"};
+        car.color="blue";
+        car.owner="fedi";
+        
+        // document.getElementById("demo").innerHTML="car color is" + car.color;
+
+        // document.getElementById("demo").innerHTML="car owner is" +  car.owner;
+
+        document.getElementById("demo").innerHTML=
+        //using template literals
+        `car color is ${car.color} <br>    
+         car owner is ${car.owner} <br>
+         car  type is ${car.type}`;
+    </script>
+</body>
+</html>
