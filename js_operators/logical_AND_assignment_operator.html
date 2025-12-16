@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>JavaScript Assignments</h1>
+    <h2>Adition Assignment/Subtraction Assignment/Multiplication Assignment/Division Assignment/Exponentiation Assignment</h2>
+    <h3>The +=Operator</h3>
+    <h3>The -=Operator</h3>
+    <h3>The *=Operator</h3>
+    <h3>The /=Operator</h3>
+    <h3>The **=Operator</h3>
+    <h3>The %=Operator</h3>
+    
+    <p>The value of x is:</p>
+    <p id="demo"></p>
+    <p id="demo2"></p>
+    <p id="demo3"></p>
+    <p id="demo4"></p>
+    <p id="demo5"></p>
+    <p id="demo6"></p>
+
+
+    <script>
+        /*
+                    ===============================
+            | Operator | Name                    | Example         |
+            ===============================
+            | =        | Assignment              | x = 5           |
+            | +=       | Addition Assignment     | x += 5          |
+            | -=       | Subtraction Assignment  | x -= 3          |
+            | *=       | Multiplication Assignment | x *= 10       |
+            | /=       | Division Assignment     | x /= 2          |
+            | %=       | Remainder Assignment    | x %= 4          |
+            | **=      | Exponentiation Assignment | x **= 3       |
+            | <<=      | Left Shift Assignment   | x <<= 1         |
+            | >>=      | Right Shift Assignment  | x >>= 2         |
+            | >>>=     | Unsigned Right Shift Assignment | x >>>= 1 |
+            | &=       | AND Assignment          | x &= 3          |
+            | |=       | OR Assignment           | x |= 2          |
+            | ^=       | XOR Assignment          | x ^= 7          |
+            ===============================
+
+        */
+        // Addition Assignment
+        let x=10;
+        x+=5 ;
+        document.getElementById("demo").innerHTML =x;
+         // Subtraction Assignment
+         let y=10;
+         y-=5;
+         document.getElementById("demo2").innerHTML=`The value of y is: ${y}`;
+         // Multiplication Assignment
+            let a=10;
+            a*=5;
+            document.getElementById("demo3").innerHTML=`The value of a is:${a}`;
+            // Division Assignment
+            let b=10;
+            b/=5;
+            document.getElementById("demo4").innerHTML=`The value of a is:${b}`;
+            // Exponentiation Assignment
+            let c=10;
+            c**=5;
+            document.getElementById("demo5").innerHTML=`The value of a is:${c}`;
+            // Remainder Assignment
+            let d=10;
+            d%=5;
+            document.getElementById("demo6").innerHTML=`The value of a is:${d}`;
+    </script>
+    
+</body>
+</html>

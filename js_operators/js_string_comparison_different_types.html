@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>JavaScript comparison</h2>
+    <p>When comparing different types, JavaScript  try to converts the types to numbers</p>
+    <p id="demo"></p>
+    <p id="demo2"></p>
+    <p id="demo3"></p>
+    <script>
+        document.getElementById("demo").innerHTML=
+        `${"2">"12"}`; // in string 12 comes after 2 that;s why is;s  true
+        document.getElementById("demo2").innerHTML=
+        `${2>"12"}`; // here  both are converted to numbers 2>12 is false. when comparing different types, JavaScript converts the types to numbers
+        
+        document.getElementById("demo3").innerHTML=
+        `${2>"Jhon"}`;// when javascript tries to convert "Jhon" to number it becomes NaN. Any comparison with NaN is false
+    </script>
+</body>
+</html>
