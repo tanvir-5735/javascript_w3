@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>JavaScript Nested if</h1>
+    <p id="demo"></p>
+    <p id="demo2"></p>
+    <script>
+      {
+          let age=16;
+        let country="USA";
+        let text="You can not drive!";
+
+        if(country =="USA"){
+            if(age>=16){
+                text="You can drive!";
+            }
+        }
+        document.getElementById("demo").innerHTML=
+        `${text}`;
+      }
+      {
+        let age=16;
+        let country="USA";
+        let text="You can not drive!"; //Nested if statements can make code more complex.so here is an alternative using logical AND operator
+        if(country=="USA" && age>=16){ //Using logical AND operator 
+            text="You can drive!";
+            }
+        document.getElementById("demo2").innerHTML=
+        `${text}`;
+            
+        }
+      
+    </script>
+</body>
+</html>
