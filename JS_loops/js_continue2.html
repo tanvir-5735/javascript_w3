@@ -6,6 +6,18 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <h1>javaScript Loops</h1>
+    <h2>The continue Statement</h2>
+    <P id="demo"></P>
+    <script>
+        let text="";
+        loop1:for(let j=1;j<5 ;j++){
+            loop2:for(let i=1;i<5;i++){
+                if(i===3){continue loop1}
+                text+=`${i}<br>`;
+            }
+        }
+        document.getElementById("demo").innerHTML=text;
+    </script>
 </body>
 </html>
