@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>JavaScript Strings</h1>
+    <h2>The Slice()Method</h2>
+    <p id="demo"></p>
+    <p id="demo2"></p>
+    <script>
+        let text="Apple, Banana,Kiwi";
+        let part=`${text.slice(3,16)}`;
+        document.getElementById("demo").innerHTML=`${part}`;
+         let part2=`${text.slice(7)}`;
+        document.getElementById("demo2").innerHTML=`${part2}`;
+    </script>
+</body>
+</html>
