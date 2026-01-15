@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>JavaScript Functions</h1>
+
+    <p>Accessing a function without (), returns the function itself and not the result:</p>
+
+    <p id="demo"></p>
+    <script>
+        function sayHello(){
+            return "Hello World";
+        }
+        let text =sayHello;
+        document.getElementById("demo").innerHTML=`${text}`;
+    </script>
+</body>
+</html>
