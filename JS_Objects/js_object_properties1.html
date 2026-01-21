@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>JavaScript Object Properties</h1>
+    <h2>Access a Property with .</h2>
+    <p id="demo"></p>
+
+     <script>
+        // an object is an unordered collection of properties
+        //Properties are the most important part of javascript   objects.
+        //Properties can be changed ,added,deleted,and  some are read only.     
+        const person={
+            firstname:"John",
+            lastname:"Doe",
+            age:50,
+            eyecolor:"blue"
+        };
+        document.getElementById("demo").innerHTML=`${person.firstname} is ${person.age} years old .`;
+     </script>  
+</body>
+</html>

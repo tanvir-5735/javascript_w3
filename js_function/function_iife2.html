@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>JavaScript Functions</h1>
+    <h3>IIFEs(Immediately Invoked Function Expressions)</h3>
+    <p>Functions can be invoked automatically without being called:</p>
+    <p id="demo"></p>
+    <script>
+      const counter = (function () {
+        let value = 0;
+        return {
+          increment() {
+            value++;
+          },
+          get() {
+            return value;
+          },
+        };
+      })();
+      counter.increment();
+      let x = counter.get();
+    </script>
+  </body>
+</html>
