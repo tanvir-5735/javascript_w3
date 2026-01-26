@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronos X - Premium Digital Watch</title>
+    <style>
+        :root {
+            /* Theme Variables */
+            --case-color: #e0e0e0;
+            --case-dark: #a0a0a0;
+            --bezel-color: #f0f0f0;
+            --strap-color: #1a1a1a;
+            
+            /* Screen Colors */
+            --screen-bg: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --accent-color: #00d2ff; /* Cyber Blue */
+            --ring-activity: #ff3b30; /* Red */
+            --ring-steps: #34c759;    /* Green */
+            
+            /* Dimensions */
+            --watch-size: 380px;
+            --strap-width: 220px;
+            --strap-height: 70px;
+        }
+
+        /* Material Themes */
+        [data-theme="gold"] {
+            --case-color: #ffd700;
+            --case-dark: #b8860b;
+            --bezel-color: #fffacd;
+            --strap-color: #2c1e12;
+            --accent-color: #ffaa00;
+        }
+
+        [data-theme="rosegold"] {
+            --case-color: #b76e79;
+            --case-dark: #8b4d5b;
+            --bezel-color: #eecdd1;
+            --strap-color: #4a3b40;
+            --accent-color: #e67e22;
+        }
+
+        [data-theme="steel"] {
+            --strap-color: #c0c0c0; 
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #222 0%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* --- UI Controls --- */
+        .controls-panel {
+            position: absolute;
+            bottom: 30px;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        .control-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #666; }
+        
+        button {
+            background: #333; border: 1px solid #444; color: #ccc;
+            padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.8rem;
+        }
+        button:hover { background: #444; color: white; }
+        button.active { background: var(--accent-color); border-color: var(--accent-color); color: #000; font-weight: bold; }
+
+        /* --- Watch Structure --- */
+        .watch-container {
+            position: relative;
+            width: var(--watch-size);
+            height: calc(var(--watch-size) + var(--strap-height) * 2 + 40px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: transform 0.1s ease-out;
+            transform-style: preserve-3d;
+        }
+
+        /* Straps */
+        .strap {
+            width: calc(var(--watch-size) * 0.6);
+            height: var(--strap-height);
+            background: var(--strap-color);
+            position: absolute; left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            border-radius: 10px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        .strap.top { top: 0; border-radius: 20px 20px 40px 40px; border-bottom: 2px solid rgba(255,255,255,0.1); }
+        .strap.bottom { bottom: 0; border-radius: 40px 40px 20px 20px; border-top: 2px solid rgba(255,255,255,0.1); }
+
+        /* Leather Texture override */
+        .strap.top { background-image: repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.05) 20px); }
+        .strap.bottom { background-image: repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.05) 20px); }
+
+        /* Steel Override */
+        [data-theme="steel"] .strap {
+            background: linear-gradient(to right, #999, #eee, #999);
+            background-image: none;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        [data-theme="steel"] .strap::after {
+            content: ''; position: absolute; top: 10%; left: 0; right: 0; bottom: 10%;
+            background: repeating-linear-gradient(90deg, transparent 0%, transparent 10%, rgba(0,0,0,0.2) 11%, rgba(0,0,0,0.2) 12%);
+        }
+
+        /* Case */
+        .case {
+            width: var(--watch-size); height: var(--watch-size);
+            background: radial-gradient(circle at 30% 30%, var(--case-color), var(--case-dark));
+            border-radius: 50%;
+            position: relative; z-index: 10;
+            box-shadow: -10px 10px 30px rgba(0,0,0,0.6), inset 2px 2px 5px rgba(255,255,255,0.4), inset -5px -5px 15px rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
+            border: 2px solid #666;
+        }
+
+        /* Hardware Buttons */
+        .crown {
+            position: absolute; right: -12px; top: 50%;
+            width: 18px; height: 35px;
+            background: linear-gradient(to bottom, var(--case-dark), var(--case-color), var(--case-dark));
+            border-radius: 4px; z-index: 5;
+            cursor: pointer; transition: 0.2s;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.4);
+            border: 1px solid #555;
+        }
+        .crown:active { transform: translateY(-50%) translateX(-4px); }
+        .crown::before { /* Ridges */
+            content: ''; position: absolute; top: 5px; left: 0; right: 0; bottom: 5px;
+            background: repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(0,0,0,0.2) 3px);
+        }
+
+        .action-btn {
+            position: absolute; right: -8px; width: 10px; height: 20px;
+            background: #333; border-radius: 2px; border: 1px solid #555; z-index: 4; cursor: pointer;
+        }
+        .action-btn.top { top: 40%; }
+        .action-btn.bottom { bottom: 40%; }
+
+        /* --- The Screen (OLED) --- */
+        .bezel {
+            width: 92%; height: 92%;
+            background: #111; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 10px #000;
+            padding: 4px; /* Bezel thickness */
+        }
+
+        .screen {
+            width: 100%; height: 100%;
+            background: var(--screen-bg);
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,1);
+            display: flex; justify-content: center; align-items: center;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        /* Screen Glare/Reflection */
+        .screen::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 40%, rgba(0,0,0,0.4) 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* --- Watch Faces --- */
+        .face-content {
+            width: 100%; height: 100%;
+            position: relative;
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.4s ease-out;
+        }
+        .face-content.active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* Face 1: Minimalist */
+        .face-minimal {
+            text-align: center;
+        }
+        .time-big {
+            font-size: 4rem;
+            font-weight: 200;
+            letter-spacing: -2px;
+            line-height: 1;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        .date-small {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+        .seconds-bar-container {
+            width: 60%; height: 4px; background: #333; border-radius: 2px; margin-top: 20px; overflow: hidden;
+        }
+        .seconds-bar {
+            height: 100%; background: var(--accent-color); width: 0%;
+            transition: width 0.2s linear;
+        }
+
+        /* Face 2: Activity (Rings) */
+        .face-activity { position: relative; }
+        
+        .svg-rings {
+            width: 260px; height: 260px;
+            transform: rotate(-90deg);
+        }
+        .ring-bg { fill: none; stroke: #1a1a1a; stroke-width: 12; }
+        .ring-progress { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+        
+        .ring-outer { stroke: var(--ring-steps); stroke-dasharray: 628; stroke-dashoffset: 100; }
+        .ring-inner { stroke: var(--ring-activity); stroke-dasharray: 440; stroke-dashoffset: 200; }
+        
+        .activity-stats {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .activity-val { font-size: 2.5rem; font-weight: bold; display: block; }
+        .activity-label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .mini-time { position: absolute; bottom: 60px; font-size: 1.2rem; letter-spacing: 1px; }
+
+        /* Face 3: Data (Bars) */
+        .face-data { padding: 40px; width: 100%; height: 100%; justify-content: flex-end; padding-bottom: 80px; }
+        
+        .data-grid { display: flex; gap: 8px; align-items: flex-end; height: 120px; }
+        .data-col {
+            width: 12px; background: #333; border-radius: 4px; height: 100%;
+            display: flex; flex-direction: column-reverse; overflow: hidden;
+        }
+        .data-fill { width: 100%; background: var(--text-primary); opacity: 0.5; transition: height 0.2s; }
+        .data-fill.active { background: var(--accent-color); opacity: 1; box-shadow: 0 0 8px var(--accent-color); }
+        
+        .data-text {
+            position: absolute; top: 35%; width: 100%; text-align: center;
+            font-size: 2.5rem; font-weight: 300; font-variant-numeric: tabular-nums;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            :root { --watch-size: 280px; --strap-height: 50px; }
+            .time-big { font-size: 3rem; }
+            .svg-rings { width: 200px; height: 200px; }
+            .controls-panel { width: 90%; flex-wrap: wrap; justify-content: center; bottom: 10px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header style="margin-bottom: 20px; text-align: center;">
+        <h1 style="font-weight: 300; letter-spacing: 5px; text-transform: uppercase; font-size: 1.5rem;">Chronos <span style="font-weight: 700; color: var(--accent-color);">X</span></h1>
+        <p style="color: #666; font-size: 0.9rem;">OLED Smart Chronograph</p>
+    </header>
+
+    <div class="watch-container" id="watchContainer">
+        <!-- Straps -->
+        <div class="strap top"></div>
+        
+        <!-- Case -->
+        <div class="case">
+            <div class="crown" id="crown" title="Change Face"></div>
+            <div class="action-btn top"></div>
+            <div class="action-btn bottom"></div>
+
+            <div class="bezel">
+                <div class="screen">
+                    
+                    <!-- Face 1: Minimalist -->
+                    <div class="face-content face-minimal active" id="face1">
+                        <div class="time-big" id="digitalTime">12:00</div>
+                        <div class="date-small" id="digitalDate">MON 24</div>
+                        <div class="seconds-bar-container">
+                            <div class="seconds-bar" id="secondsBar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Face 2: Activity -->
+                    <div class="face-content face-activity" id="face2">
+                        <svg class="svg-rings" viewBox="0 0 220 220">
+                            <!-- Outer Ring -->
+                            <circle class="ring-bg" cx="110" cy="110" r="100"></circle>
+                            <circle class="ring-progress ring-outer" id="ringSteps" cx="110" cy="110" r="100"></circle>
+                            <!-- Inner Ring -->
+                            <circle class="ring-bg" cx="110" cy="110" r="70"></circle>
+                            <circle class="ring-progress ring-inner" id="ringKcal" cx="110" cy="110" r="70"></circle>
+                        </svg>
+                        <div class="activity-stats">
+                            <span class="activity-val" id="stepCount">8,432</span>
+                            <span class="activity-label">Steps</span>
+                        </div>
+                        <div class="mini-time" id="activityTime">12:00</div>
+                    </div>
+
+                    <!-- Face 3: Data -->
+                    <div class="face-content face-data" id="face3">
+                        <div class="data-text" id="dataTime">12:00</div>
+                        <div class="data-grid" id="dataGrid">
+                            <!-- Bars generated by JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="strap bottom"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-panel">
+        <div class="control-group">
+            <span class="control-label">Case Finish</span>
+            <div class="btn-group">
+                <button onclick="setTheme('silver')" class="active" id="btnSilver">Silver</button>
+                <button onclick="setTheme('gold')" id="btnGold">Gold</button>
+                <button onclick="setTheme('rosegold')" id="btnRoseGold">Rose Gold</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <span class="control-label">Strap</span>
+            <div class="btn-group">
+                <button onclick="setStrap('leather')" class="active" id="btnLeather">Leather</button>
+                <button onclick="setStrap('steel')" id="btnSteel">Steel</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <span class="control-label">Info</span>
+            <div style="font-size: 0.75rem; color: #666;">
+                Click Crown to switch faces.<br>Move mouse for 3D tilt.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State ---
+        let currentFace = 1;
+        const totalFaces = 3;
+        
+        // --- DOM Elements ---
+        const digitalTime = document.getElementById('digitalTime');
+        const digitalDate = document.getElementById('digitalDate');
+        const secondsBar = document.getElementById('secondsBar');
+        
+        const activityTime = document.getElementById('activityTime');
+        const stepCount = document.getElementById('stepCount');
+        const ringSteps = document.getElementById('ringSteps');
+        const ringKcal = document.getElementById('ringKcal');
+        
+        const dataTime = document.getElementById('dataTime');
+        const dataGrid = document.getElementById('dataGrid');
+        const crown = document.getElementById('crown');
+
+        // --- Init Data Grid (Visualizer) ---
+        for(let i=0; i<12; i++) {
+            let col = document.createElement('div');
+            col.className = 'data-col';
+            let fill = document.createElement('div');
+            fill.className = 'data-fill';
+            fill.id = `bar-${i}`;
+            col.appendChild(fill);
+            dataGrid.appendChild(col);
+        }
+
+        // --- Logic ---
+        function updateWatch() {
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+            const ms = now.getMilliseconds();
+            
+            // Format Time Strings
+            const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            const fullTimeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            
+            const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+            const dateStr = `${days[now.getDay()]} ${now.getDate()}`;
+
+            // Update Face 1: Minimal
+            digitalTime.textContent = timeStr;
+            digitalDate.textContent = dateStr;
+            // Smooth seconds bar
+            const secPct = ((s * 1000) + ms) / 60000 * 100;
+            secondsBar.style.width = `${secPct}%`;
+
+            // Update Face 2: Activity
+            activityTime.textContent = timeStr;
+            // Simulate fluctuating rings
+            const ringOffset = 628 - (628 * (secPct / 100)); // 628 is circumference
+            ringSteps.style.strokeDashoffset = ringOffset;
+            
+            // Inner ring mimics "Heart Rate" or "Calories" with random fluctuation
+            const randomFluctuation = Math.sin(Date.now() / 1000) * 50;
+            const kcalOffset = 440 - (440 * 0.7) - randomFluctuation; // 440 is inner circum
+            ringKcal.style.strokeDashoffset = kcalOffset;
+
+            // Update Face 3: Data
+            dataTime.textContent = timeStr;
+            // Visualizer Logic: create a waveform effect based on time
+            for(let i=0; i<12; i++) {
+                const bar = document.getElementById(`bar-${i}`);
+                // Height calculation: base + sine wave offset based on index and time
+                const wave = Math.sin((i * 0.5) + (Date.now() / 200));
+                let height = 20 + (wave * 15); 
+                
+                // Highlight the current hour index roughly (12h format wrap)
+                let isActive = (i === (h % 12));
+                
+                bar.style.height = `${height}%`;
+                if(isActive) bar.classList.add('active');
+                else bar.classList.remove('active');
+            }
+        }
+
+        // --- Interaction: Switch Face ---
+        function switchFace() {
+            // Hide all
+            document.querySelectorAll('.face-content').forEach(el => el.classList.remove('active'));
+            
+            // Increment
+            currentFace++;
+            if(currentFace > totalFaces) currentFace = 1;
+
+            // Show new
+            const nextFace = document.getElementById(`face${currentFace}`);
+            nextFace.classList.add('active');
+
+            // Crown Animation
+            crown.style.transform = 'translateY(-50%) rotate(45deg)';
+            setTimeout(() => crown.style.transform = 'translateY(-50%)', 200);
+        }
+
+        crown.addEventListener('click', switchFace);
+
+        // --- Interaction: 3D Parallax ---
+        document.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.pageX) / 30;
+            const y = (window.innerHeight / 2 - e.pageY) / 30;
+            watchContainer.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+        });
+
+        // --- Theming ---
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
+            if(theme === 'silver') document.getElementById('btnSilver').classList.add('active');
+            if(theme === 'gold') document.getElementById('btnGold').classList.add('active');
+            if(theme === 'rosegold') document.getElementById('btnRoseGold').classList.add('active');
+        }
+
+        function setStrap(type) {
+            const current = document.body.getAttribute('data-theme') || 'silver';
+            // Clean existing strap classes (simple string replacement)
+            const cleanTheme = current.replace(' steel', '');
+            document.body.setAttribute('data-theme', cleanTheme + (type === 'steel' ? ' steel' : ''));
+            
+            document.getElementById('btnLeather').classList.toggle('active', type === 'leather');
+            document.getElementById('btnSteel').classList.toggle('active', type === 'steel');
+        }
+
+        // --- Loop ---
+        setInterval(updateWatch, 30); // High refresh for smooth animations
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Digital Wall Clock</title>
+    <!-- Importing Tech/Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: rgba(20, 20, 25, 0.6);
+            --primary-glow: #00f2ff;
+            --secondary-glow: #7000ff;
+            --text-main: #ffffff;
+            --text-dim: #888888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* --- Animated Background --- */
+        #canvas-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- Main Clock Container (Glassmorphism) --- */
+        .clock-container {
+            position: relative;
+            z-index: 10;
+            width: 600px;
+            height: 600px;
+            background: var(--card-bg);
+            border-radius: 50%;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 0 50px rgba(0, 242, 255, 0.1),
+                inset 0 0 30px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        /* --- SVG Seconds Ring --- */
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg); /* Start from top */
+            pointer-events: none;
+        }
+
+        .progress-ring__circle-bg {
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 4;
+            fill: transparent;
+        }
+
+        .progress-ring__circle {
+            stroke: var(--primary-glow);
+            stroke-width: 4;
+            fill: transparent;
+            stroke-linecap: round;
+            stroke-dasharray: 1885; /* 2 * PI * 300 */
+            stroke-dashoffset: 1885;
+            transition: stroke-dashoffset 0.1s linear;
+            filter: drop-shadow(0 0 5px var(--primary-glow));
+        }
+
+        /* --- Clock Content --- */
+        .content-wrapper {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+        }
+
+        .greeting {
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .time-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 6rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: baseline;
+        }
+
+        .time-part {
+            position: relative;
+            display: inline-block;
+            min-width: 1.8ch;
+        }
+
+        .colon {
+            font-size: 4rem;
+            color: var(--primary-glow);
+            animation: blink 1s infinite;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .ampm {
+            font-size: 1.5rem;
+            color: var(--secondary-glow);
+            margin-left: 15px;
+            font-weight: 400;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--secondary-glow);
+        }
+
+        .date-display {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: #ccc;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            display: inline-block;
+        }
+
+        /* --- Controls --- */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 20;
+        }
+
+        .btn-fullscreen {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-fullscreen:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+        }
+
+        /* --- Animations --- */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .clock-container {
+                width: 90vw;
+                height: 90vw;
+            }
+            .time-display {
+                font-size: 3.5rem;
+            }
+            .colon { font-size: 2.5rem; }
+            .progress-ring__circle, .progress-ring__circle-bg {
+                /* Adjust SVG viewbox logic via JS or simpler CSS scaling */
+                r: 45%; /* Radius relative to SVG */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Animation Canvas -->
+    <canvas id="canvas-bg"></canvas>
+
+    <!-- Main Clock UI -->
+    <div class="clock-container">
+        <!-- SVG Ring for Seconds -->
+        <svg class="progress-ring" width="600" height="600" viewBox="0 0 600 600">
+            <circle class="progress-ring__circle-bg" cx="300" cy="300" r="290"></circle>
+            <circle class="progress-ring__circle" id="seconds-circle" cx="300" cy="300" r="290"></circle>
+        </svg>
+
+        <div class="content-wrapper">
+            <div class="greeting" id="greeting">SYSTEM ACTIVE</div>
+            
+            <div class="time-display">
+                <span class="time-part" id="hour">12</span>
+                <span class="colon">:</span>
+                <span class="time-part" id="minute">00</span>
+                <span class="ampm" id="ampm">AM</span>
+            </div>
+
+            <div class="date-display" id="date">MONDAY, JAN 01</div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn-fullscreen" onclick="toggleFullScreen()">[ Full Screen ]</button>
+    </div>
+
+    <script>
+        // --- Clock Logic ---
+        const hourEl = document.getElementById('hour');
+        const minuteEl = document.getElementById('minute');
+        const ampmEl = document.getElementById('ampm');
+        const dateEl = document.getElementById('date');
+        const greetingEl = document.getElementById('greeting');
+        const circle = document.getElementById('seconds-circle');
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+
+        // Setup SVG Ring
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const offset = circumference - percent / 100 * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            
+            // Time
+            let h = now.getHours();
+            let m = now.getMinutes();
+            let s = now.getSeconds();
+            let ms = now.getMilliseconds();
+
+            // AM/PM Logic
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            h = h ? h : 12; // the hour '0' should be '12'
+            
+            // Format numbers (padding)
+            const hStr = h < 10 ? '0' + h : h;
+            const mStr = m < 10 ? '0' + m : m;
+
+            // Update DOM
+            hourEl.textContent = hStr;
+            minuteEl.textContent = mStr;
+            ampmEl.textContent = ampm;
+
+            // Seconds Ring (Smooth Animation)
+            // Calculation includes milliseconds for smooth sweep
+            const totalSeconds = s + (ms / 1000);
+            const percent = (totalSeconds / 60) * 100;
+            setProgress(percent);
+
+            // Date
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            dateEl.textContent = now.toLocaleDateString('en-US', options).toUpperCase();
+
+            // Dynamic Greeting
+            const rawHour = now.getHours();
+            if (rawHour < 12) greetingEl.textContent = "GOOD MORNING";
+            else if (rawHour < 18) greetingEl.textContent = "GOOD AFTERNOON";
+            else greetingEl.textContent = "GOOD EVENING";
+
+            requestAnimationFrame(updateClock);
+        }
+
+        // --- Background Particle Animation ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 242, 255, 0.3)'; // Cyan tint
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = (width * height) / 15000; // Density
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                // Draw connections
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(112, 0, 255, ${0.1 - distance/1000})`; // Purple tint
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        // --- Fullscreen Logic ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // --- Event Listeners & Init ---
+        window.addEventListener('resize', () => {
+            resize();
+            initParticles();
+        });
+
+        resize();
+        initParticles();
+        animateParticles();
+        updateClock();
+
+    </script>
+</body>
+</html>

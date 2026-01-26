@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Clock</title>
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle at top, #0a0f1f, #020409);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, sans-serif;
+    color: #fff;
+  }
+
+  h1 {
+    opacity: 0.7;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+  }
+
+  #demo {
+    font-size: 60px;
+    font-weight: 700;
+    letter-spacing: 4px;
+
+    background: linear-gradient(
+      90deg,
+      #00f0ff,
+      #0066ff,
+      #523077,
+      #00f0ff
+    );
+    background-size: 300% 300%;
+    animation:
+      gradientMove 4s linear infinite,
+      neonFlicker 2.8s infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @keyframes gradientMove {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes neonFlicker {
+    0%, 100% {
+      text-shadow:
+        0 0 8px #00f0ff,
+        0 0 20px #0066ff,
+        0 0 40px #7a00ff;
+    }
+    10% {
+      text-shadow:
+        0 0 5px #00f0ff,
+        0 0 10px #0066ff;
+    }
+    20% {
+      text-shadow:
+        0 0 12px #00f0ff,
+        0 0 25px #0066ff,
+        0 0 50px #7a00ff;
+    }
+    30% {
+      text-shadow:
+        0 0 6px #00f0ff,
+        0 0 12px #0066ff;
+    }
+    40% {
+      text-shadow:
+        0 0 10px #00f0ff,
+      0 0 22px #0066ff,
+      0 0 45px #7a00ff;
+    }
+    60% {
+      text-shadow:
+        0 0 5px #00f0ff,
+        0 0 12px #0066ff;
+    }
+    80% {
+      text-shadow:
+        0 0 14px #00f0ff,
+        0 0 30px #0066ff,
+        0 0 55px #7a00ff;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<h1>TIME NOW</h1>
+<p id="demo"></p>
+
+<script>
+  function showTime() {
+    const d = new Date();
+    let h = d.getHours();
+    let m = d.getMinutes();
+    let s = d.getSeconds();
+    let session = "AM";
+
+    if (h >= 12) {
+      session = "PM";
+      if (h > 12) h -= 12;
+    }
+    if (h === 0) h = 12;
+
+    m = m < 10 ? "0" + m : m;
+    s = s < 10 ? "0" + s : s;
+
+    document.getElementById("demo").innerHTML =
+      `${h} : ${m} : ${s} ${session}`;
+  }
+
+  showTime();
+  setInterval(showTime, 1000);
+</script>
+
+<!-- <script>
+      setInterval(function showTime()
+  {
+    let date= new Date();
+
+    let hour =date.getHours();
+    let min=date.getMinutes();
+    let sec=date.getSeconds();
+    let session="AM";
+
+    if(hour>12){
+      hour=hour-12;
+      session="PM";
+    }
+    let current_time= hour+":"+min+":"+sec+session;
+
+    document.getElementById("demo").
+    innerHTML=current_time;
+    
+  })
+    </script> -->
+
+
+</body>
+</html>

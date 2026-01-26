@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronos One - Premium Animated Watch</title>
+    <style>
+        :root {
+            /* Theme Variables - Default (Silver/Blue) */
+            --case-color: #e0e0e0;
+            --case-dark: #a0a0a0;
+            --bezel-color: #f5f5f5;
+            --strap-color: #1a1a1a;
+            --accent-color: #0055ff;
+            --face-bg: #0a0a0a;
+            --marker-color: #e0e0e0;
+            --hand-hour: #ffffff;
+            --hand-minute: #ffffff;
+            --hand-second: #ff4400;
+            
+            /* Dimensions */
+            --watch-size: 380px;
+            --strap-width: 220px;
+            --strap-height: 70px;
+        }
+
+        /* Themes */
+        [data-theme="gold"] {
+            --case-color: #ffd700;
+            --case-dark: #b8860b;
+            --bezel-color: #fffacd;
+            --strap-color: #2c1e12;
+            --accent-color: #ffaa00;
+        }
+
+        [data-theme="rosegold"] {
+            --case-color: #b76e79;
+            --case-dark: #8b4d5b;
+            --bezel-color: #eecdd1;
+            --strap-color: #4a3b40;
+            --accent-color: #e67e22;
+        }
+
+        [data-theme="steel"] {
+            --strap-color: #c0c0c0; /* Steel Link look */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #2b2b2b 0%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* --- UI Controls --- */
+        .controls-panel {
+            position: absolute;
+            bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        button {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        button:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        button.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        /* --- Watch Container --- */
+        .watch-container {
+            position: relative;
+            width: var(--watch-size);
+            height: calc(var(--watch-size) + var(--strap-height) * 2 + 40px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s ease-out; /* For parallax */
+            transform-style: preserve-3d;
+        }
+
+        /* --- Straps --- */
+        .strap {
+            width: calc(var(--watch-size) * 0.6);
+            height: var(--strap-height);
+            background: var(--strap-color);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            border-radius: 10px 10px 20px 20px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .strap.top {
+            top: 0;
+            border-radius: 20px 20px 40px 40px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            /* Stitching effect */
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.1) 20px);
+        }
+
+        .strap.bottom {
+            bottom: 0;
+            border-radius: 40px 40px 20px 20px;
+            border-top: 2px solid rgba(255,255,255,0.1);
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.1) 20px);
+        }
+
+        /* Steel strap override */
+        [data-theme="steel"] .strap {
+            background: linear-gradient(to right, #999, #eee, #999);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            background-image: none; /* Remove stitching */
+        }
+        [data-theme="steel"] .strap::after {
+            content: '';
+            position: absolute;
+            top: 10%; left: 0; right: 0; bottom: 10%;
+            background: repeating-linear-gradient(90deg, 
+                transparent 0%, transparent 10%, 
+                rgba(0,0,0,0.2) 11%, rgba(0,0,0,0.2) 12%
+            );
+        }
+
+        /* --- Watch Case --- */
+        .case {
+            width: var(--watch-size);
+            height: var(--watch-size);
+            background: radial-gradient(circle at 30% 30%, var(--case-color), var(--case-dark));
+            border-radius: 50%;
+            position: relative;
+            z-index: 10;
+            box-shadow: 
+                -10px 10px 30px rgba(0,0,0,0.5),
+                inset 2px 2px 5px rgba(255,255,255,0.4),
+                inset -5px -5px 15px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 4px solid var(--case-dark);
+        }
+
+        /* Crown */
+        .crown {
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--case-dark), var(--case-color), var(--case-dark));
+            border-radius: 4px;
+            z-index: 5;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .crown:active {
+            transform: translateY(-50%) translateX(-3px);
+        }
+        /* Crown ridges */
+        .crown::before {
+            content: '';
+            position: absolute;
+            top: 5px; left: 0; right: 0; bottom: 5px;
+            background: repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(0,0,0,0.3) 3px);
+        }
+
+        /* Pushers */
+        .pusher {
+            position: absolute;
+            right: -12px;
+            width: 12px;
+            height: 25px;
+            background: linear-gradient(to bottom, var(--case-dark), var(--case-color));
+            border-radius: 2px;
+            z-index: 4;
+            cursor: pointer;
+        }
+        .pusher.top { top: 35%; }
+        .pusher.bottom { bottom: 35%; }
+
+        /* --- Bezel --- */
+        .bezel {
+            width: 92%;
+            height: 92%;
+            background: conic-gradient(from 0deg, var(--bezel-color), var(--case-dark), var(--bezel-color), var(--case-dark), var(--bezel-color));
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .bezel-ring {
+            width: 95%;
+            height: 95%;
+            background: #111;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px #000;
+        }
+
+        /* --- Face --- */
+        .face {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #222 0%, #000 100%);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Markers */
+        .markers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .marker {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            width: 4px;
+            height: 15px;
+            background: var(--marker-color);
+            transform-origin: 50% calc(var(--watch-size) * 0.42); /* Pivot around center */
+            box-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+        .marker.main {
+            width: 6px;
+            height: 25px;
+            background: var(--accent-color);
+        }
+        /* Numbers 12, 3, 6, 9 */
+        .marker-text {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--marker-color);
+            text-align: center;
+            transform: translate(-50%, -50%);
+        }
+        .num-12 { top: 18%; left: 50%; }
+        .num-3 { top: 50%; left: 82%; }
+        .num-6 { top: 82%; left: 50%; }
+        .num-9 { top: 50%; left: 18%; }
+
+        /* Sub-dials */
+        .sub-dial {
+            position: absolute;
+            width: 25%;
+            height: 25%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+        }
+        .sub-dial.seconds { top: 15%; right: 15%; display: flex; justify-content: center; align-items: center; }
+        .sub-dial.seconds::after {
+            content: '';
+            width: 60%; height: 1px; background: red;
+            transform: rotate(0deg); /* Animated in JS */
+            transform-origin: center;
+        }
+        .sub-dial.date {
+            bottom: 15%; left: 20%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            font-family: monospace;
+        }
+
+        /* Logo */
+        .logo {
+            position: absolute;
+            top: 32%;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #ccc;
+            text-shadow: 0 1px 2px rgba(0,0,0,1);
+        }
+
+        /* --- Hands --- */
+        .hands-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+            z-index: 6;
+            box-shadow: 2px 5px 5px rgba(0,0,0,0.5);
+            transition: transform 0.05s cubic-bezier(0.4, 2.3, 0.3, 1); /* Bouncy tick */
+        }
+        
+        /* Continuous sweep for second hand if desired, or tick */
+        .hand.second {
+            width: 2px;
+            height: 45%;
+            background: var(--hand-second);
+            z-index: 8;
+            transform-origin: 50% 80%; /* Offset pivot */
+            bottom: 20%;
+            left: calc(50% - 1px);
+            transition: transform 0.05s linear; /* Default tick */
+        }
+        .hand.second::after {
+            content: '';
+            position: absolute;
+            top: 100%; left: -2px;
+            width: 6px; height: 20px;
+            background: var(--hand-second);
+        }
+
+        .hand.minute {
+            width: 6px;
+            height: 35%;
+            background: var(--hand-minute);
+            z-index: 7;
+            left: calc(50% - 3px);
+        }
+        .hand.minute::before {
+            /* Lume */
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 30%;
+            background: rgba(0, 255, 255, 0.3); border-radius: 4px;
+        }
+
+        .hand.hour {
+            width: 8px;
+            height: 25%;
+            background: var(--hand-hour);
+            z-index: 6;
+            left: calc(50% - 4px);
+        }
+        .hand.hour::before {
+             /* Lume */
+             content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 30%;
+             background: rgba(0, 255, 255, 0.3); border-radius: 4px;
+        }
+
+        .center-cap {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 16px; height: 16px;
+            background: gold;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* --- Glass Reflection & Texture --- */
+        .glass {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.05) 100%);
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
+            z-index: 20;
+            pointer-events: none;
+            backdrop-filter: blur(0.5px);
+        }
+        
+        .glare {
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(30deg);
+            pointer-events: none;
+            z-index: 21;
+            mix-blend-mode: overlay;
+        }
+
+        /* --- Digital Info Overlay (Used in Chrono mode) --- */
+        .digital-display {
+            position: absolute;
+            top: 65%;
+            width: 100%;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            text-shadow: 0 0 5px var(--accent-color);
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.3s;
+            z-index: 15;
+        }
+        
+        .mode-display {
+            position: absolute;
+            top: 45%;
+            font-size: 0.6rem;
+            color: #888;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 85, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 85, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 85, 255, 0); }
+        }
+
+        .active-indicator {
+            width: 8px; height: 8px; background: red; border-radius: 50%;
+            position: absolute; top: 52%; left: 72%;
+            box-shadow: 0 0 5px red;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            :root { --watch-size: 280px; --strap-height: 50px; }
+            .controls-panel { width: 90%; flex-wrap: wrap; justify-content: center; bottom: 10px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header style="margin-bottom: 20px; text-align: center;">
+        <h1 style="font-weight: 300; letter-spacing: 5px; text-transform: uppercase; font-size: 1.5rem;">Chronos <span style="font-weight: 700; color: var(--accent-color);">One</span></h1>
+        <p style="color: #888; font-size: 0.9rem;">Interactive Luxury Timepiece</p>
+    </header>
+
+    <div class="watch-container" id="watchContainer">
+        <!-- Top Strap -->
+        <div class="strap top"></div>
+
+        <!-- Watch Case -->
+        <div class="case">
+            <div class="crown" id="crown" title="Change Mode"></div>
+            <div class="pusher top" id="pusherTop" title="Start/Stop"></div>
+            <div class="pusher bottom" id="pusherBottom" title="Reset"></div>
+
+            <div class="bezel">
+                <div class="bezel-ring">
+                    <div class="face">
+                        <!-- Markers -->
+                        <div class="markers" id="markers"></div>
+                        
+                        <div class="marker-text num-12">12</div>
+                        <div class="marker-text num-3">3</div>
+                        <div class="marker-text num-6">6</div>
+                        <div class="marker-text num-9">9</div>
+
+                        <div class="logo">Chronos One</div>
+                        <div class="mode-display" id="modeDisplay">TIME</div>
+                        <div class="digital-display" id="digitalDisplay">00:00:00</div>
+                        <div class="active-indicator" id="activeIndicator"></div>
+
+                        <!-- Sub-dials -->
+                        <div class="sub-dial seconds" id="subDialSeconds"></div>
+                        <div class="sub-dial date" id="dateDisplay">1</div>
+
+                        <!-- Hands -->
+                        <div class="hands-container">
+                            <div class="hand hour" id="hourHand"></div>
+                            <div class="hand minute" id="minuteHand"></div>
+                            <div class="hand second" id="secondHand"></div>
+                            <div class="center-cap"></div>
+                        </div>
+
+                        <!-- Glass & Reflection -->
+                        <div class="glass"></div>
+                        <div class="glare"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Strap -->
+        <div class="strap bottom"></div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+        <div class="control-group">
+            <span class="control-label">Case Material</span>
+            <div class="btn-group">
+                <button onclick="setTheme('silver')" class="active" id="btnSilver">Silver</button>
+                <button onclick="setTheme('gold')" id="btnGold">Gold</button>
+                <button onclick="setTheme('rosegold')" id="btnRoseGold">Rose Gold</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <span class="control-label">Strap Type</span>
+            <div class="btn-group">
+                <button onclick="setStrap('leather')" class="active" id="btnLeather">Leather</button>
+                <button onclick="setStrap('steel')" id="btnSteel">Steel Link</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <span class="control-label">Controls</span>
+            <div style="font-size: 0.75rem; color: #aaa; line-height: 1.4;">
+                Crown: Switch Mode<br>
+                Top Pusher: Action<br>
+                Mouse Move: 3D Tilt
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const hourHand = document.getElementById('hourHand');
+        const minuteHand = document.getElementById('minuteHand');
+        const secondHand = document.getElementById('secondHand');
+        const subDialSeconds = document.getElementById('subDialSeconds');
+        const dateDisplay = document.getElementById('dateDisplay');
+        const digitalDisplay = document.getElementById('digitalDisplay');
+        const modeDisplay = document.getElementById('modeDisplay');
+        const activeIndicator = document.getElementById('activeIndicator');
+        const watchContainer = document.getElementById('watchContainer');
+        const crown = document.getElementById('crown');
+        const pusherTop = document.getElementById('pusherTop');
+        const pusherBottom = document.getElementById('pusherBottom');
+
+        // --- State ---
+        let currentMode = 'TIME'; // TIME, CHRONO, TIMER
+        let chronoRunning = false;
+        let chronoStartTime = 0;
+        let chronoElapsedTime = 0;
+        let chronoInterval = null;
+
+        // --- Initialization ---
+        function initMarkers() {
+            const markersContainer = document.getElementById('markers');
+            for (let i = 0; i < 60; i++) {
+                if (i % 5 !== 0) {
+                    const marker = document.createElement('div');
+                    marker.classList.add('marker');
+                    marker.style.transform = `rotate(${i * 6}deg)`;
+                    markersContainer.appendChild(marker);
+                }
+            }
+        }
+        initMarkers();
+
+        // --- Core Time Logic ---
+        function updateClock() {
+            const now = new Date();
+            
+            // 1. Standard Time Mode
+            const seconds = now.getSeconds();
+            const minutes = now.getMinutes();
+            const hours = now.getHours();
+            
+            // Calculate degrees
+            const secondDeg = seconds * 6; 
+            const minuteDeg = (minutes * 6) + (seconds * 0.1);
+            const hourDeg = (hours * 30) + (minutes * 0.5);
+
+            // Sub-dial seconds (continuous rotation)
+            const subDialDeg = seconds * 6;
+
+            if (currentMode === 'TIME') {
+                setHands(secondDeg, minuteDeg, hourDeg);
+                subDialSeconds.style.transform = `rotate(${subDialDeg}deg)`;
+                dateDisplay.textContent = now.getDate();
+                digitalDisplay.style.opacity = 0;
+                activeIndicator.style.display = 'none';
+            } 
+            else if (currentMode === 'CHRONO') {
+                updateChronoDisplay();
+            }
+            else if (currentMode === 'TIMER') {
+                // Simple Timer visualizer (counts up for demo purposes if not active)
+                digitalDisplay.textContent = "SET 00:00";
+                digitalDisplay.style.opacity = 1;
+                activeIndicator.style.display = 'none';
+                setHands(0,0,0); // Reset hands to 12
+            }
+        }
+
+        function setHands(sec, min, hr) {
+            // Using specific transforms to avoid the "wraparound" spin glitch at 0deg
+            // We add offsets if needed, but for this demo, direct mapping is fine provided we don't transition awkwardly at 0.
+            // Better approach for visual polish:
+            secondHand.style.transform = `rotate(${sec}deg)`;
+            minuteHand.style.transform = `rotate(${min}deg)`;
+            hourHand.style.transform = `rotate(${hr}deg)`;
+        }
+
+        // --- Chronograph Logic ---
+        function updateChronoDisplay() {
+            if (!chronoRunning) return;
+
+            const now = Date.now();
+            const diff = now - chronoStartTime + chronoElapsedTime;
+            
+            const ms = Math.floor((diff % 1000) / 10);
+            const s = Math.floor((diff / 1000) % 60);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+
+            // Update Digital
+            const msStr = ms < 10 ? '0' + ms : ms;
+            const sStr = s < 10 ? '0' + s : s;
+            const mStr = m < 10 ? '0' + m : m;
+            digitalDisplay.textContent = `${mStr}:${sStr}.${msStr}`;
+            digitalDisplay.style.opacity = 1;
+            
+            // Update Analog Hands for Chrono
+            // Main Second hand becomes 1/10s second hand
+            const subSecDeg = (ms / 100) * 360; // 1 full rotation per 100ms
+            const secDeg = s * 6; // Minute hand acts as chrono seconds
+            const minDeg = m * 6; // Hour hand acts as chrono minutes
+
+            secondHand.style.transform = `rotate(${subSecDeg}deg)`;
+            secondHand.style.transition = 'none'; // High speed needs no lag
+            minuteHand.style.transform = `rotate(${secDeg}deg)`;
+            hourHand.style.transform = `rotate(${minDeg}deg)`;
+            
+            dateDisplay.textContent = "CHRONO";
+        }
+
+        function toggleChrono() {
+            if (currentMode !== 'CHRONO') return;
+
+            if (chronoRunning) {
+                // Stop
+                clearInterval(chronoInterval);
+                chronoRunning = false;
+                activeIndicator.style.display = 'none';
+                secondHand.style.transition = 'transform 0.05s cubic-bezier(0.4, 2.3, 0.3, 1)';
+            } else {
+                // Start
+                chronoStartTime = Date.now();
+                chronoInterval = setInterval(updateChronoDisplay, 10);
+                chronoRunning = true;
+                activeIndicator.style.display = 'block';
+            }
+        }
+
+        function resetChrono() {
+            if (currentMode !== 'CHRONO' || chronoRunning) return;
+            chronoElapsedTime = 0;
+            digitalDisplay.textContent = "00:00.00";
+            setHands(0, 0, 0);
+            dateDisplay.textContent = "1"; // Reset to random date look
+        }
+
+        // --- Interaction Logic ---
+        function cycleMode() {
+            const modes = ['TIME', 'CHRONO', 'TIMER'];
+            let idx = modes.indexOf(currentMode);
+            idx = (idx + 1) % modes.length;
+            currentMode = modes[idx];
+            
+            // UI Update
+            modeDisplay.textContent = currentMode;
+            
+            // Reset specific visuals
+            if (currentMode === 'TIME') {
+                secondHand.style.transition = 'transform 0.05s cubic-bezier(0.4, 2.3, 0.3, 1)';
+            }
+            
+            // Force an immediate update of visuals
+            updateClock();
+        }
+
+        // Event Listeners
+        crown.addEventListener('click', () => {
+            cycleMode();
+            // Animation feedback
+            crown.style.transform = 'translateY(-50%) rotate(15deg)';
+            setTimeout(() => crown.style.transform = 'translateY(-50%)', 200);
+        });
+
+        pusherTop.addEventListener('click', () => {
+            if (currentMode === 'CHRONO') {
+                toggleChrono();
+            } else {
+                // Generic animation for other modes
+                pusherTop.style.transform = 'translateX(-3px)';
+                setTimeout(() => pusherTop.style.transform = 'none', 100);
+            }
+        });
+
+        pusherBottom.addEventListener('click', () => {
+            if (currentMode === 'CHRONO') {
+                resetChrono();
+            }
+        });
+
+        // Parallax Effect
+        document.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.pageX) / 25;
+            const y = (window.innerHeight / 2 - e.pageY) / 25;
+            watchContainer.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+            
+            // Move glare slightly differently for realism
+            const glare = document.querySelector('.glare');
+            glare.style.transform = `rotate(30deg) translate(${x * 2}px, ${y * 2}px)`;
+        });
+
+        // --- Theming Logic ---
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            
+            // Update buttons
+            document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
+            if(theme === 'silver') document.getElementById('btnSilver').classList.add('active');
+            if(theme === 'gold') document.getElementById('btnGold').classList.add('active');
+            if(theme === 'rosegold') document.getElementById('btnRoseGold').classList.add('active');
+        }
+
+        function setStrap(type) {
+            document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') + (type === 'steel' ? ' steel' : ''));
+            // Clean up logic for attributes could be better, but relies on CSS last-wins or structure
+            // For this simple setup, we append/remove 'steel' from the attribute value
+            
+            const currentTheme = document.body.getAttribute('data-theme').replace(' steel', '');
+            document.body.setAttribute('data-theme', currentTheme + (type === 'steel' ? ' steel' : ''));
+
+            document.getElementById('btnLeather').classList.toggle('active', type === 'leather');
+            document.getElementById('btnSteel').classList.toggle('active', type === 'steel');
+        }
+
+        // --- Loop ---
+        setInterval(updateClock, 1000); // Main tick (approx)
+        // High frequency loop for smooth sweep or sub-dial updates if needed
+        function loop() {
+           // Logic handled in intervals for simplicity
+           requestAnimationFrame(loop);
+        }
+        
+        // Initial Kickoff
+        updateClock();
+        loop();
+
+    </script>
+</body>
+</html>

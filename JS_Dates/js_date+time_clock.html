@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Neon Chrono</title>
+<!-- Importing High-Tech Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* Color Themes */
+    --hue: 190; /* Default Cyan */
+    --primary: hsl(var(--hue), 100%, 50%);
+    --primary-dim: hsl(var(--hue), 100%, 30%);
+    --primary-glow: hsla(var(--hue), 100%, 50%, 0.6);
+    
+    --bg-dark: #05050a;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    
+    --font-display: 'Orbitron', sans-serif;
+    --font-ui: 'Rajdhani', sans-serif;
+  }
+
+  /* Reset & Base */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    /* Deep radial gradient background */
+    background-image: 
+      radial-gradient(circle at 50% 0%, #1a1f35 0%, transparent 60%),
+      radial-gradient(circle at 80% 80%, hsl(var(--hue), 60%, 10%) 0%, transparent 40%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--font-display);
+    color: white;
+    perspective: 1000px;
+  }
+
+  /* --- Background Animation Canvas --- */
+  #particleCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* --- Main Glass Container --- */
+  .clock-container {
+    position: relative;
+    z-index: 10;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-top: 1px solid rgba(255,255,255,0.3);
+    border-left: 1px solid rgba(255,255,255,0.2);
+    padding: 3rem 4rem;
+    border-radius: 20px;
+    box-shadow: 
+      0 20px 50px rgba(0,0,0,0.5),
+      0 0 30px var(--primary-glow),
+      inset 0 0 20px rgba(0,0,0,0.2);
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    /* Subtle Float Animation */
+    animation: float 6s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+
+  /* Decorative Corners */
+  .corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px var(--primary);
+  }
+  .tl { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
+  .tr { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 10px 0 0; }
+  .bl { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 10px; }
+  .br { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
+
+  /* --- Clock Typography --- */
+  .date-display {
+    font-family: var(--font-ui);
+    font-size: 1.5rem;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  }
+
+  .time-wrapper {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    position: relative;
+  }
+
+  .time-display {
+    font-size: 6rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 4px;
+    
+    /* Gradient Text */
+    background: linear-gradient(
+      135deg, 
+      #fff 0%, 
+      var(--primary) 50%, 
+      #fff 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    /* Glowing Shadow Effect */
+    filter: drop-shadow(0 0 15px var(--primary-dim));
+    animation: shimmer 4s linear infinite;
+    
+    position: relative;
+  }
+
+  .session {
+    font-family: var(--font-ui);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-left: 15px;
+    text-shadow: 0 0 10px var(--primary);
+    animation: pulse 2s infinite;
+  }
+
+  /* Separator blinking animation */
+  .separator {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    animation: blink 1s steps(1) infinite;
+  }
+
+  /* --- Controls / UI --- */
+  .controls {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1.5rem;
+    font-family: var(--font-ui);
+  }
+
+  button {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    color: rgba(255,255,255,0.6);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    outline: none;
+  }
+
+  button:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary-glow);
+  }
+
+  button.active {
+    color: var(--bg-dark);
+    background: var(--primary);
+    box-shadow: 0 0 20px var(--primary);
+    font-weight: 800;
+  }
+
+  /* --- Animations --- */
+  @keyframes shimmer {
+    0% { background-position: 0% center; }
+    100% { background-position: -200% center; }
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.8; text-shadow: 0 0 10px var(--primary); }
+    50% { opacity: 1; text-shadow: 0 0 20px var(--primary); }
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px) rotateX(0deg); }
+    50% { transform: translateY(-10px) rotateX(2deg); }
+    100% { transform: translateY(0px) rotateX(0deg); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .clock-container {
+      padding: 2rem;
+      width: 90%;
+    }
+    .time-display {
+      font-size: 3.5rem;
+    }
+    .controls {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+  <!-- Background Animation Layer -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Main UI Container -->
+  <main class="clock-container">
+    <!-- Decorative Neon Corners -->
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div class="date-display" id="date">LOADING...</div>
+    
+    <div class="time-wrapper">
+      <div class="time-display" id="demo">
+        <span id="hours">00</span><span class="separator">:</span><span id="minutes">00</span><span class="separator">:</span><span id="seconds">00</span>
+      </div>
+      <div class="session" id="session">AM</div>
+    </div>
+
+    <div class="controls">
+      <button id="btnFormat" onclick="toggleFormat()">24H Mode</button>
+      <button onclick="changeTheme(190)" class="active">Cyan</button>
+      <button onclick="changeTheme(280)">Purple</button>
+      <button onclick="changeTheme(0)">Red</button>
+      <button onclick="changeTheme(120)">Green</button>
+    </div>
+  </main>
+
+<script>
+  /* --------------------------------------------------------
+     LOGIC: CLOCK & INTERACTIVITY
+  -------------------------------------------------------- */
+  let is24Hour = false; // Default to 12H format like original request
+  
+  // Select DOM Elements once for performance
+  const elHours = document.getElementById('hours');
+  const elMinutes = document.getElementById('minutes');
+  const elSeconds = document.getElementById('seconds');
+  const elSession = document.getElementById('session');
+  const elDate = document.getElementById('date');
+  const btnFormat = document.getElementById('btnFormat');
+
+  function showTime() {
+    const d = new Date();
+    let h = d.getHours();
+    let m = d.getMinutes();
+    let s = d.getSeconds();
+    let session = "";
+
+    // Date formatting
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateString = d.toLocaleDateString('en-US', options);
+    if(elDate.innerText !== dateString) elDate.innerText = dateString;
+
+    // Time formatting logic
+    if (!is24Hour) {
+      session = "AM";
+      if (h === 0) h = 12;
+      if (h > 12) {
+        h -= 12;
+        session = "PM";
+      }
+      elSession.style.display = "block";
+      elSession.innerText = session;
+    } else {
+      elSession.style.display = "none";
+    }
+
+    // Padding zeros
+    h = h < 10 ? "0" + h : h;
+    m = m < 10 ? "0" + m : m;
+    s = s < 10 ? "0" + s : s;
+
+    // Update DOM
+    elHours.innerText = h;
+    elMinutes.innerText = m;
+    elSeconds.innerText = s;
+  }
+
+  function toggleFormat() {
+    is24Hour = !is24Hour;
+    btnFormat.innerText = is24Hour ? "12H Mode" : "24H Mode";
+    btnFormat.classList.toggle('active');
+    showTime();
+  }
+
+  function changeTheme(hue) {
+    document.documentElement.style.setProperty('--hue', hue);
+    // Update button active states visually
+    const buttons = document.querySelectorAll('.controls button');
+    buttons.forEach(btn => {
+        if(btn.innerText !== "24H Mode" && btn.innerText !== "12H Mode") {
+            btn.classList.remove('active');
+        }
+    });
+    // Find the clicked button (event.target) logic simplified for inline usage:
+    event.target.classList.add('active');
+  }
+
+  // Initialize
+  showTime();
+  setInterval(showTime, 1000);
+
+
+  /* --------------------------------------------------------
+     ANIMATION: PARTICLE SYSTEM (CANVAS)
+     Creates a premium "Starfield" or "Data Dust" effect
+  -------------------------------------------------------- */
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  let width, height;
+  let particles = [];
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+
+    reset() {
+      this.x = Math.random() * width;
+      this.y = Math.random() * height;
+      this.size = Math.random() * 2 + 0.5; // Small particles
+      this.speedX = (Math.random() - 0.5) * 0.5;
+      this.speedY = (Math.random() - 0.5) * 0.5;
+      this.alpha = Math.random() * 0.5 + 0.1;
+      this.life = Math.random() * 100;
+      this.maxLife = 100 + Math.random() * 100;
+    }
+
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      this.life++;
+
+      // Pulsate alpha
+      this.alpha = 0.5 + Math.sin(this.life * 0.05) * 0.3;
+
+      // Reset if out of bounds or old
+      if (this.life > this.maxLife || this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+        this.reset();
+      }
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+      ctx.fill();
+      
+      // Add a glow to larger particles
+      if(this.size > 1.5) {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = `rgba(255, 255, 255, ${this.alpha})`;
+      } else {
+        ctx.shadowBlur = 0;
+      }
+    }
+  }
+
+  // Create particles
+  function initParticles() {
+    particles = [];
+    const particleCount = Math.min(window.innerWidth / 10, 150); // Responsive count
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, width, height);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+
+  initParticles();
+  animateParticles();
+
+</script>
+</body>
+</html>
