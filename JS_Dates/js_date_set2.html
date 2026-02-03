@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>JavaScript Dates</h1>
+<h2>The setFullYear() Method</h2>
+<p>The setFullYear() method can optionally set month and day.</p>
+<p>Note that JavaScript months count from 0. December is month 11.</p>
+
+<p id="demo"></p>
+<script>
+    const d = new Date("January 01, 2025");
+    d.setFullYear(2020, 11, 3);
+    document.getElementById("demo").innerHTML=`${d}`;
+    console.log(d);
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>JavaScript Temporal</h1>
+    <h2>Temporal zonedDateTime</h2>
+    <p id="demo"></p>
+
+    <script>
+      const zonedDate = Temporal.ZonedDateTime.from({
+        timeZone: "America/Los_Angeles",
+        year: 1995,
+        month: 12,
+        day: 7,
+        hour: 3,
+        minute: 24,
+        second: 30,
+        millisecond: 0,
+        microsecond: 3,
+        nanosecond: 500,
+      });
+      document.getElementById("demo").innerHTML = zonedDate;
+      console.log(zonedDate);
+      
+    </script>
+  </body>
+</html>

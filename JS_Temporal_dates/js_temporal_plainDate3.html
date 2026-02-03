@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>JavaScript Temporal</h1>
+<h2>The PlainDateTime() Method</h2>
+
+<p>PlainDateTime() lets you to create a date with no time zone:</p>
+<p id="demo"></p>
+<script>
+    const date=new Temporal.PlainDateTime(2026, 5, 1, 10, 0);
+    document.getElementById("demo").innerHTML=date;
+    console.log(date);
+    
+</script>
+</body>
+</html>

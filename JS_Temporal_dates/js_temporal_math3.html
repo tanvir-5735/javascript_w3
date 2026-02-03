@@ -6,16 +6,15 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>JavaScript  Dates</h1>
-    <h2>The getFullYear() Method</h2>
-    <p>Return the full Year of a date Object:</p>
+    <h1>JavaScript Temporal</h1>
+    <h2>Temporal.Instant</h2>
     <p id="demo"></p>
 
     <script>
-        const d= new Date("2021-03-25");
-        document.getElementById("demo").innerHTML=`${d.getFullYear()}`;
+         instant=Temporal.Instant.from('2026-05-01T00:00+00:30')
+         document.getElementById("demo").innerHTML=instant;
+         console.log(instant);
+         
     </script>
-
-
 </body>
 </html>

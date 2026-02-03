@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>JavaScript Temporal</h1>
+    <h2>Get Current Time</h2>
+    <p id="demo"></p>
+    <script>
+      const today = Temporal.Now.plainDateISO();
+      document.getElementById("demo").innerHTML = `today`;
+      console.log(today);
+    </script>
+  </body>
+</html>

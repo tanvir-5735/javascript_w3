@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sale Countdown</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .box {
+    background: #222;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+  }
+  h1 {
+    color: #ff4d4d;
+  }
+  #time {
+    font-size: 24px;
+    margin-top: 15px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h1>🔥 Today’s Sale Offer</h1>
+  <p>Hurry up! Offer ends in:</p>
+  <div id="time"></div>
+</div>
+
+<script>
+  // SET OFFER END DATE & TIME
+  const offerEnd = new Date("2026-01-28 23:59:59").getTime();
+
+  const timer = setInterval(() => {
+    const now = new Date().getTime();
+    const distance = offerEnd - now;
+
+    if (distance <= 0) {
+      clearInterval(timer);
+      document.getElementById("time").innerHTML = "❌ Offer Ended";
+      return;
+    }
+
+    const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((distance / (1000 * 60)) % 60);
+    const seconds = Math.floor((distance / 1000) % 60);
+
+    document.getElementById("time").innerHTML =
+      `${hours}h ${minutes}m ${seconds}s`;
+  }, 1000);
+</script>
+
+</body>
+</html>

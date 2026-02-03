@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>JavaScript Temporal</h1>
+<h2>The since() Method</h2>
+
+<p id="demo"></p>
+
+<script>
+const wedding = Temporal.PlainDate.from('2026-05-01');
+const today = Temporal.Now.plainDateISO();
+const duration = today.since(wedding, { largestUnit: 'years' }); 
+
+document.getElementById("demo").innerHTML = "The difference is " + duration.toString() + "<br>" +
+duration.years.toString() + " years<br>" +
+duration.months.toString() + " months<br>" +
+duration.days.toString() + " days";
+console.log(duration);
+
+
+</script>
+
+</body>
+</html>
